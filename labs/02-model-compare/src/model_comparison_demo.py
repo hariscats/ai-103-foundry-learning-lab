@@ -1,10 +1,11 @@
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from openai import OpenAI
 import json
+import os
 import time
 
-endpoint = "https://foundry-sandbox-053189.services.ai.azure.com/openai/v1"
-models = ["gpt-4.1", "gpt-4.1-mini"]
+endpoint = os.environ["FOUNDRY_OPENAI_ENDPOINT"]
+models = [os.environ["FOUNDRY_MODEL_NAME"], os.environ["FOUNDRY_COMPARISON_MODEL_NAME"]]
 
 comparison_runs = [
     {

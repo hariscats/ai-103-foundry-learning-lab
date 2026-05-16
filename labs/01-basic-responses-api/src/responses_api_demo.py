@@ -1,9 +1,10 @@
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
 from openai import OpenAI
 import json
+import os
 
-endpoint = "https://foundry-sandbox-053189.services.ai.azure.com/openai/v1"
-deployment_name = "gpt-4.1"
+endpoint = os.environ["FOUNDRY_OPENAI_ENDPOINT"]
+deployment_name = os.environ["FOUNDRY_MODEL_NAME"]
 
 token_provider = get_bearer_token_provider(
     DefaultAzureCredential(),
