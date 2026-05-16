@@ -1,27 +1,33 @@
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
-from openai import OpenAI
 import json
 import os
+
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from openai import OpenAI
 
 endpoint = os.environ["FOUNDRY_OPENAI_ENDPOINT"]
 deployment_name = os.environ["FOUNDRY_MODEL_NAME"]
 
+# Entra token provider replaces an API key.
 token_provider = get_bearer_token_provider(
     DefaultAzureCredential(),
     "https://cognitiveservices.azure.com/.default",
 )
 
+# The OpenAI-compatible endpoint should end with /openai/v1.
 client = OpenAI(
     base_url=endpoint,
     api_key=token_provider,
 )
 
+SYSTEM_INSTRUCTIONS = """
+You are a concise Azure AI study coach.
+Answer directly, then mention one Responses API concept when useful.
+""".strip()
 
-def print_response(label, response):
+
+def print_response_metadata(response):
+    """Print the small shape worth learning from each response."""
     usage = response.usage.model_dump() if getattr(response, "usage", None) else {}
-
-    print(f"\n{label}")
-    print(response.output_text)
     print(
         json.dumps(
             {
@@ -36,73 +42,70 @@ def print_response(label, response):
     )
 
 
-instruction_response = client.responses.create(
-    model=deployment_name,
-    instructions="You explain AI concepts clearly and concisely.",
-    input="Explain the Responses API in one sentence.",
-    temperature=0.2,
-    max_output_tokens=80,
-)
-print_response("INSTRUCTIONS + BASIC RESPONSE", instruction_response)
+def create_chat_response(user_text, previous_response_id):
+    request = {
+        "model": deployment_name,
+        "instructions": SYSTEM_INSTRUCTIONS,
+        "input": user_text,
+        "temperature": 0.3,
+        "top_p": 0.9,
+        "max_output_tokens": 350,
+        "stream": True,
+    }
 
-sampling_response = client.responses.create(
-    model=deployment_name,
-    instructions="Return exactly three short bullets.",
-    input="Suggest creative ways a student could practice Azure AI model evaluation.",
-    temperature=0.8,
-    top_p=0.9,
-    max_output_tokens=120,
-)
-print_response("SAMPLING + TOKEN LIMIT", sampling_response)
+    # previous_response_id lets the service carry the chat state.
+    if previous_response_id:
+        request["previous_response_id"] = previous_response_id
 
-follow_up_response = client.responses.create(
-    model=deployment_name,
-    previous_response_id=instruction_response.id,
-    input="Now summarize the main benefit in six words or fewer.",
-    temperature=0.2,
-    max_output_tokens=30,
-)
-print_response("STATEFUL FOLLOW-UP", follow_up_response)
+    return client.responses.create(**request)
 
-conversation_history = [
-    {"role": "user", "content": "Define prompt caching in one sentence."},
-]
 
-manual_response_1 = client.responses.create(
-    model=deployment_name,
-    input=conversation_history,
-    temperature=0.2,
-    max_output_tokens=80,
-)
-print_response("MANUAL HISTORY FIRST TURN", manual_response_1)
+def print_streamed_response(stream):
+    final_response = None
 
-conversation_history += manual_response_1.output
-conversation_history.append(
-    {"role": "user", "content": "Why can that matter for cost and latency?"},
-)
+    # Deltas are the assistant text as it is generated.
+    for event in stream:
+        if event.type == "response.output_text.delta":
+            print(event.delta, end="", flush=True)
+        elif event.type == "response.completed":
+            final_response = event.response
 
-manual_response_2 = client.responses.create(
-    model=deployment_name,
-    input=conversation_history,
-    temperature=0.2,
-    max_output_tokens=100,
-)
-print_response("MANUAL HISTORY SECOND TURN", manual_response_2)
+    print()
+    return final_response
 
-print("\nSTREAMING RESPONSE")
-streamed_response_id = None
-stream = client.responses.create(
-    model=deployment_name,
-    input="Write one short sentence about why streaming improves chat UX.",
-    temperature=0.2,
-    max_output_tokens=60,
-    stream=True,
-)
 
-for event in stream:
-    if event.type == "response.output_text.delta":
-        print(event.delta, end="", flush=True)
-    elif event.type == "response.completed":
-        streamed_response_id = event.response.id
+def main():
+    previous_response_id = None
 
-print(f"\nstreamed_response_id: {streamed_response_id}")
+    print("Responses API chat lab")
+    print("Ask about Azure AI. Commands: /new resets state, /exit quits.")
+
+    while True:
+        user_text = input("\nYou: ").strip()
+
+        if not user_text:
+            continue
+        if user_text.lower() in {"/exit", "exit", "quit"}:
+            break
+        if user_text.lower() == "/new":
+            previous_response_id = None
+            print("State reset. The next turn starts a new response chain.")
+            continue
+
+        print("\nAssistant: ", end="", flush=True)
+        stream = create_chat_response(user_text, previous_response_id)
+        response = print_streamed_response(stream)
+
+        if response is None:
+            print("No completed response event was returned.")
+            continue
+
+        # Save this ID for the next turn.
+        previous_response_id = response.id
+
+        print("\nResponse metadata")
+        print_response_metadata(response)
+
+
+if __name__ == "__main__":
+    main()
