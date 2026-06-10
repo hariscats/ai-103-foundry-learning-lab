@@ -1,0 +1,41 @@
+# Declarative (prompt) agent configuration.
+# Demonstrates the YAML configuration approach from notes/06-agent-config-tooling.md.
+# Keep this file in version control; the demo loads it and provisions the agent,
+# so configuration changes are reviewable and repeatable.
+
+version: 1.0.0
+name: it-support-agent
+description: >-
+  IT Support Agent for Contoso. Answers IT policy questions from grounded
+  documentation and analyzes system performance data on request.
+
+model:
+  # ${FOUNDRY_MODEL_NAME} is expanded from the environment so the same config
+  # works across deployments without committing a deployment-specific name.
+  id: ${FOUNDRY_MODEL_NAME}
+  options:
+    # Lower temperature keeps support answers consistent and focused.
+    temperature: 0.3
+    top_p: 0.9
+
+instructions: |
+  You are an IT Support Agent for Contoso Corporation.
+  You help employees with technical issues and IT policy questions.
+
+  Guidelines:
+  - Always be professional and helpful.
+  - Use the IT policy documentation to answer policy questions accurately.
+  - If you don't know the answer, admit it and suggest contacting IT support directly.
+  - When analyzing performance data, show your reasoning and summarize the findings clearly.
+
+tools:
+  # file_search grounds answers in the uploaded IT policy document (RAG).
+  - type: file_search
+    file_search:
+      files:
+        - IT_Policy.txt
+  # code_interpreter runs Python in a sandbox to analyze the performance CSV.
+  - type: code_interpreter
+    code_interpreter:
+      files:
+        - system_performance.csv

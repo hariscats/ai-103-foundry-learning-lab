@@ -1,0 +1,54 @@
+Contoso Corporation - IT Support Policy (Sample)
+================================================
+
+This document contains sample IT policies used by the IT Support Agent for
+grounding. It is for lab and study purposes only.
+
+1. Password Resets
+-------------------
+- Employees may reset their own password through the self-service portal at
+  https://passwordreset.contoso.example at any time.
+- Passwords must be at least 14 characters and include upper case, lower case,
+  a number, and a symbol.
+- Passwords expire every 90 days. The system sends reminders 14, 7, and 1 day
+  before expiration.
+- After 5 failed sign-in attempts the account is locked for 30 minutes.
+- If self-service reset is unavailable, contact the IT Service Desk to verify
+  identity and request a manual reset. Manual resets require manager approval
+  for privileged accounts.
+
+2. Software Installation Requests
+---------------------------------
+- Pre-approved software is available in the Company Portal and can be installed
+  without a ticket.
+- For software not in the Company Portal, submit a software request ticket that
+  includes the application name, business justification, and required license.
+- Requests are reviewed by IT Security within 2 business days.
+- Administrative rights are not granted to standard accounts; IT installs
+  approved software remotely.
+
+3. Hardware Troubleshooting
+---------------------------
+- For a device that will not power on, verify the power source, try a different
+  cable or outlet, and perform a 30-second hard reset before opening a ticket.
+- For performance issues, restart the device and confirm pending updates are
+  installed. Capture the time and a description of the problem.
+- Hardware under warranty (less than 3 years old) is repaired or replaced by IT.
+- Peripheral replacements (keyboard, mouse, headset) are fulfilled from local
+  stock within 1 business day.
+
+4. Reporting a Lost or Stolen Device
+-------------------------------------
+- Report a lost or stolen device immediately to the IT Service Desk and your
+  manager, and within 24 hours at the latest.
+- IT will remotely lock and, if required, wipe the device to protect company
+  data.
+- File a police report for stolen devices and provide the report number to IT.
+- A replacement device is issued after the incident is logged and approved.
+
+5. Contacting IT Support
+------------------------
+- Service Desk hours: Monday to Friday, 7:00 AM to 7:00 PM local time.
+- Submit tickets through the IT Support portal or email itsupport@contoso.example.
+- For urgent security incidents, use the 24/7 security hotline listed on the
+  intranet.

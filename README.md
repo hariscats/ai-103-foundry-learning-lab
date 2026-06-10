@@ -36,4 +36,5 @@ python .\labs\02-model-compare\src\model_comparison_demo.py
 python .\labs\03-fluency-evaluator\src\fluency_eval_demo.py
 python .\labs\04-responses-api-features\src\responses_features_demo.py
 python .\labs\05-tool-use\src\tool_use_demo.py
+python .\labs\06-agent-config-tooling\src\agent_config_tooling_demo.py
 ```
