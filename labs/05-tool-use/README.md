@@ -2,7 +2,7 @@
 
 Use the Responses API with built-in `file_search` and `web_search` tools.
 
-This lab creates a temporary vector store, uploads sample Margie's Travel brochure files, asks the model to answer from those files, then asks a follow-up that can use web search for current public context.
+This lab creates a temporary vector store, uploads sample brochure files, asks the model to answer from those files, then asks a follow-up that can use web search for current public context.
 
 ```powershell
 python .\labs\05-tool-use\src\tool_use_demo.py
