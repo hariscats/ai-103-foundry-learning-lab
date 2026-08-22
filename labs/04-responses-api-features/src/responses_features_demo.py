@@ -1,15 +1,19 @@
 import json
 import os
+from pathlib import Path
 
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from azure.identity import AzureCliCredential, get_bearer_token_provider
+from dotenv import load_dotenv
 from openai import OpenAI
+
+load_dotenv(Path(__file__).resolve().parents[3] / ".env")
 
 endpoint = os.environ["FOUNDRY_OPENAI_ENDPOINT"]
 deployment_name = os.environ["FOUNDRY_MODEL_NAME"]
 
 # Entra token provider replaces an API key.
 token_provider = get_bearer_token_provider(
-    DefaultAzureCredential(),
+    AzureCliCredential(),
     "https://cognitiveservices.azure.com/.default",
 )
 
@@ -47,8 +51,6 @@ def create_chat_response(user_text, previous_response_id):
         "model": deployment_name,
         "instructions": SYSTEM_INSTRUCTIONS,
         "input": user_text,
-        "temperature": 0.3,
-        "top_p": 0.9,
         "max_output_tokens": 350,
         "stream": True,
     }

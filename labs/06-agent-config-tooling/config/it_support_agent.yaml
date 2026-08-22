@@ -13,10 +13,6 @@ model:
   # ${FOUNDRY_MODEL_NAME} is expanded from the environment so the same config
   # works across deployments without committing a deployment-specific name.
   id: ${FOUNDRY_MODEL_NAME}
-  options:
-    # Lower temperature keeps support answers consistent and focused.
-    temperature: 0.3
-    top_p: 0.9
 
 instructions: |
   You are an IT Support Agent for Contoso Corporation.

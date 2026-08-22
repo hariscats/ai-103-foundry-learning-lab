@@ -1,16 +1,20 @@
 import os
 import time
+from pathlib import Path
 from pprint import pprint
 
 from azure.ai.projects import AIProjectClient
 from azure.ai.projects.models import TestingCriterionAzureAIEvaluator
-from azure.identity import DefaultAzureCredential
+from azure.identity import AzureCliCredential
+from dotenv import load_dotenv
 from openai.types.eval_create_params import DataSourceConfigCustom
 from openai.types.evals.create_eval_jsonl_run_data_source_param import (
     CreateEvalJSONLRunDataSourceParam,
     SourceFileContent,
     SourceFileContentContent,
 )
+
+load_dotenv(Path(__file__).resolve().parents[3] / ".env")
 
 
 def extract_text(response):
@@ -33,7 +37,7 @@ def main() -> None:
     prompt = "Write one short sentence answering: What is the capital of France?"
 
     with (
-        DefaultAzureCredential() as credential,
+        AzureCliCredential() as credential,
         AIProjectClient(endpoint=project_endpoint, credential=credential) as project_client,
         project_client.get_openai_client() as client,
     ):

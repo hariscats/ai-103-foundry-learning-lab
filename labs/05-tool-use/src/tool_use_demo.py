@@ -3,8 +3,11 @@ import os
 from contextlib import ExitStack
 from pathlib import Path
 
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from azure.identity import AzureCliCredential, get_bearer_token_provider
+from dotenv import load_dotenv
 from openai import BadRequestError, OpenAI
+
+load_dotenv(Path(__file__).resolve().parents[3] / ".env")
 
 endpoint = os.environ["FOUNDRY_OPENAI_ENDPOINT"]
 deployment_name = os.environ["FOUNDRY_MODEL_NAME"]
@@ -14,7 +17,7 @@ brochure_dir = lab_root / "data" / "brochures"
 supported_file_types = {".pdf", ".txt", ".md"}
 
 token_provider = get_bearer_token_provider(
-    DefaultAzureCredential(),
+    AzureCliCredential(),
     "https://cognitiveservices.azure.com/.default",
 )
 
@@ -104,7 +107,6 @@ def create_travel_response(user_text, vector_store_id, previous_response_id, inc
         "instructions": INSTRUCTIONS,
         "input": user_text,
         "tools": build_tools(vector_store_id, include_web_search=include_web_search),
-        "temperature": 0.2,
         "max_output_tokens": 700,
     }
 

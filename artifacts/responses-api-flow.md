@@ -10,7 +10,7 @@ sequenceDiagram
     participant Model as gpt-4.1 deployment
 
     User->>App: Run responses_features_demo.py
-    App->>Identity: DefaultAzureCredential requests token
+    App->>Identity: AzureCliCredential requests token
     Identity-->>App: Access token
 
     App->>API: responses.create(input, instructions)

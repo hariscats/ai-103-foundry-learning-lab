@@ -8,10 +8,10 @@ This lab creates a temporary vector store, uploads sample brochure files, asks t
 python .\labs\05-tool-use\src\tool_use_demo.py
 ```
 
-The lab deletes the vector store at the end so repeated runs do not leave extra resources behind. To inspect the vector store after a run, set:
+The lab deletes the vector store at the end so repeated runs do not leave extra resources behind. To inspect the vector store after a run, set this in the repository `.env` file:
 
-```powershell
-$env:FOUNDRY_KEEP_VECTOR_STORE = "1"
+```dotenv
+FOUNDRY_KEEP_VECTOR_STORE=1
 ```
 
 If your Foundry model or region does not support the `web_search` tool, the script retries the same request with `file_search` only and prints a note.

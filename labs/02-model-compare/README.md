@@ -1,3 +1,3 @@
 # Model comparison lab.
 
-Compare two deployments with simple sampling and usage metrics.
+Compare two deployments with focused prompts and usage metrics.

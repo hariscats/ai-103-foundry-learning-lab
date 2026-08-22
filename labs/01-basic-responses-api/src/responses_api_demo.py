@@ -1,13 +1,17 @@
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from azure.identity import AzureCliCredential, get_bearer_token_provider
+from dotenv import load_dotenv
 from openai import OpenAI
 import json
 import os
+from pathlib import Path
+
+load_dotenv(Path(__file__).resolve().parents[3] / ".env")
 
 endpoint = os.environ["FOUNDRY_OPENAI_ENDPOINT"]
 deployment_name = os.environ["FOUNDRY_MODEL_NAME"]
 
 token_provider = get_bearer_token_provider(
-    DefaultAzureCredential(),
+    AzureCliCredential(),
     "https://cognitiveservices.azure.com/.default",
 )
 
@@ -29,8 +33,6 @@ response = client.responses.create(
         {"role": "user", "content": shared_context},
         {"role": "user", "content": "What is the capital of France?"},
     ],
-    temperature=0.2,
-    top_p=0.9,
 )
 
 print(json.dumps(response.model_dump(), indent=2, default=str))

@@ -16,17 +16,23 @@ This repository is for hands-on practice and ai-103 certification study only.
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
+```
+
+## Environment Configuration
+
+Create the ignored `.env` file from the committed template and replace the placeholders:
+
+```shell
+cp .env.example .env
+```
+
+Every demo loads this repository-root file automatically. Authenticate separately with Azure CLI:
+
+```shell
 az login --tenant <tenant-id>
 ```
 
-## Environment Variables
-
-```powershell
-$env:FOUNDRY_OPENAI_ENDPOINT = "https://<resource-name>.services.ai.azure.com/openai/v1"
-$env:FOUNDRY_PROJECT_ENDPOINT = "https://<resource-name>.services.ai.azure.com/api/projects/<project-name>"
-$env:FOUNDRY_MODEL_NAME = "gpt-4.1"
-$env:FOUNDRY_COMPARISON_MODEL_NAME = "gpt-4.1-mini"
-```
+The demos use `AzureCliCredential` and do not read authentication credentials from `.env`.
 
 ## Self-Test
 

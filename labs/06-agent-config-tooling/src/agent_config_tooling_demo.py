@@ -16,7 +16,10 @@ from azure.ai.projects.models import (
     FileSearchTool,
     PromptAgentDefinition,
 )
-from azure.identity import DefaultAzureCredential
+from azure.identity import AzureCliCredential
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).resolve().parents[3] / ".env")
 
 LAB_ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = LAB_ROOT / "config" / "it_support_agent.yaml"
@@ -109,19 +112,13 @@ def configure_agent(project_client, config, tools):
     """Create a new version of the prompt agent from the configuration.
 
     Maps the YAML config onto the core agent properties: name, model,
-    description, instructions, temperature, top_p, and tools.
+    description, instructions, and tools.
     """
-    options = config["model"].get("options", {})
-
     definition_kwargs = {
         "model": expand_env(config["model"]["id"]),
         "instructions": config["instructions"],
         "tools": tools,
     }
-    if "temperature" in options:
-        definition_kwargs["temperature"] = options["temperature"]
-    if "top_p" in options:
-        definition_kwargs["top_p"] = options["top_p"]
 
     return project_client.agents.create_version(
         agent_name=config["name"],
@@ -251,10 +248,10 @@ def cleanup(project_client, openai_client, agent, conversation_id, created):
 def main():
     project_endpoint = os.environ.get("FOUNDRY_PROJECT_ENDPOINT")
     if not project_endpoint:
-        print("Set FOUNDRY_PROJECT_ENDPOINT and FOUNDRY_MODEL_NAME before running this lab.")
+        print("Add FOUNDRY_PROJECT_ENDPOINT and FOUNDRY_MODEL_NAME to the repository .env file.")
         return
     if not os.environ.get("FOUNDRY_MODEL_NAME"):
-        print("Set FOUNDRY_MODEL_NAME to a deployed model name before running this lab.")
+        print("Add FOUNDRY_MODEL_NAME to the repository .env file.")
         return
 
     config = load_agent_config()
@@ -262,7 +259,7 @@ def main():
     created = {"vector_store_ids": [], "file_ids": []}
 
     with (
-        DefaultAzureCredential() as credential,
+        AzureCliCredential() as credential,
         AIProjectClient(endpoint=project_endpoint, credential=credential) as project_client,
         project_client.get_openai_client() as openai_client,
     ):

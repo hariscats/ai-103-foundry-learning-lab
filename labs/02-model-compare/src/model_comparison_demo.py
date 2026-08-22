@@ -1,8 +1,12 @@
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from azure.identity import AzureCliCredential, get_bearer_token_provider
+from dotenv import load_dotenv
 from openai import OpenAI
 import json
 import os
+from pathlib import Path
 import time
+
+load_dotenv(Path(__file__).resolve().parents[3] / ".env")
 
 endpoint = os.environ["FOUNDRY_OPENAI_ENDPOINT"]
 models = [os.environ["FOUNDRY_MODEL_NAME"], os.environ["FOUNDRY_COMPARISON_MODEL_NAME"]]
@@ -10,20 +14,16 @@ models = [os.environ["FOUNDRY_MODEL_NAME"], os.environ["FOUNDRY_COMPARISON_MODEL
 comparison_runs = [
     {
         "name": "focused",
-        "temperature": 0.2,
-        "top_p": 0.9,
         "prompt": "What is the capital of France?",
     },
     {
-        "name": "more_exploratory",
-        "temperature": 0.8,
-        "top_p": 0.6,
-        "prompt": "What is the capital of France? Answer in one short sentence.",
+        "name": "concise",
+        "prompt": "What is the capital of France? Answer in one short sentence with one landmark.",
     },
 ]
 
 token_provider = get_bearer_token_provider(
-    DefaultAzureCredential(),
+    AzureCliCredential(),
     "https://cognitiveservices.azure.com/.default",
 )
 
@@ -53,8 +53,6 @@ for run in comparison_runs:
         response = client.responses.create(
             model=model,
             input=run["prompt"],
-            temperature=run["temperature"],
-            top_p=run["top_p"],
         )
         elapsed_seconds = time.perf_counter() - started
         usage = response.usage.model_dump() if getattr(response, "usage", None) else {}
@@ -63,8 +61,6 @@ for run in comparison_runs:
             {
                 "run": run["name"],
                 "model": model,
-                "temperature": run["temperature"],
-                "top_p": run["top_p"],
                 "elapsed_seconds": round(elapsed_seconds, 3),
                 "input_tokens": usage.get("input_tokens"),
                 "output_tokens": usage.get("output_tokens"),

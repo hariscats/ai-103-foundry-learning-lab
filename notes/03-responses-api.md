@@ -33,11 +33,11 @@ pip install azure-ai-projects azure-identity openai
 ```
 
 ```python
-from azure.identity import DefaultAzureCredential
+from azure.identity import AzureCliCredential
 from azure.ai.projects import AIProjectClient
 
 project_client = AIProjectClient(
-    credential=DefaultAzureCredential(),
+    credential=AzureCliCredential(),
     endpoint="https://{resource-name}.services.ai.azure.com/api/projects/<project-name>"
 )
 
@@ -60,10 +60,10 @@ pip install openai azure-identity
 
 ```python
 from openai import OpenAI
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from azure.identity import AzureCliCredential, get_bearer_token_provider
 
 token_provider = get_bearer_token_provider(
-    DefaultAzureCredential(),
+    AzureCliCredential(),
     "https://ai.azure.com/.default"
 )
 
