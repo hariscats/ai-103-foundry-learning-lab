@@ -1,6 +1,5 @@
 import json
 import os
-from contextlib import ExitStack
 from pathlib import Path
 
 from azure.identity import AzureCliCredential, get_bearer_token_provider
@@ -63,23 +62,27 @@ def create_vector_store_with_brochures():
     print("Creating vector store and uploading brochures...")
     vector_store = client.vector_stores.create(name="margies-travel-brochures")
 
+    completed = 0
+    failed = 0
+
     try:
-        with ExitStack() as stack:
-            file_streams = [stack.enter_context(path.open("rb")) for path in brochure_files]
-            file_batch = client.vector_stores.file_batches.upload_and_poll(
-                vector_store_id=vector_store.id,
-                files=file_streams,
-            )
+        # Upload one file at a time; file_batches.upload_and_poll relies on an
+        # LRO status endpoint this Foundry resource does not support.
+        for path in brochure_files:
+            with path.open("rb") as handle:
+                vector_store_file = client.vector_stores.files.upload_and_poll(
+                    vector_store_id=vector_store.id,
+                    file=handle,
+                )
+            if vector_store_file.status == "completed":
+                completed += 1
+            else:
+                failed += 1
     except Exception:
         client.vector_stores.delete(vector_store.id)
         raise
 
-    counts = file_batch.file_counts
-    print(
-        "Vector store ready: "
-        f"{getattr(counts, 'completed', 0)} completed, "
-        f"{getattr(counts, 'failed', 0)} failed."
-    )
+    print(f"Vector store ready: {completed} completed, {failed} failed.")
     print("Uploaded files:")
     for path in brochure_files:
         print(f"- {path.name}")
